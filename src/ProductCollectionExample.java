@@ -19,7 +19,7 @@ public class ProductCollectionExample {
     private static String email = "name@example.com";
 
     public static void main(String[] args) {
-        ApiClient apiClient = new ApiClient("<HOST>", "<Acess Token>", "<Secret>");
+        ApiClient apiClient = new ApiClient("https://s3p.smobilpay.staging.maviance.info/v2", "1c6fbc97-c186-4091-923c-e2535fe49215", "2b4e01f1-7600-4152-bd91-c309e4d91fb5");
         
         apiClient.setDebugging(false);
         ConfirmApi confirmApi = new ConfirmApi(apiClient);
