@@ -15,6 +15,7 @@ env:
   EB_APP_NAME: s3p-callback-server
   EB_ENV_NAME: s3p-callback-server-prod
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  ACTIONS_RUNNER_FORCE_JAVASCRIPT_ACTIONS_NODE_VERSION: 24
 
 jobs:
   build-and-deploy:
