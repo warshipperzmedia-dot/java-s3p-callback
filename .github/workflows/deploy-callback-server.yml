@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1
-  EB_APP_NAME: s3p-callback-server
-  EB_ENV_NAME: s3p-callback-server-prod
+  AWS_REGION: eu-north-1
+  EB_APP_NAME: callback-server-updated
+  EB_ENV_NAME: Callback-server-updated-env
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
