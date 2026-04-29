@@ -14,6 +14,7 @@ env:
   AWS_REGION: eu-north-1
   EB_APP_NAME: callback-server-updated
   EB_ENV_NAME: Callback-server-updated-env
+  S3_BUCKET: callback-s3
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -57,15 +58,18 @@ jobs:
       - name: Upload package to S3
         run: |
           aws s3 cp callback-server/s3p-callback-server-${{ github.sha }}.zip \
-            s3://${{ secrets.EB_BUCKET }}/s3p-callback-server-${{ github.sha }}.zip
+            s3://${{ env.S3_BUCKET }}/s3p-callback-server-${{ github.sha }}.zip \
+            --region ${{ env.AWS_REGION }}
+          echo "✓ Package uploaded to S3: s3://${{ env.S3_BUCKET }}/s3p-callback-server-${{ github.sha }}.zip"
 
       - name: Create EB application version
         run: |
           aws elasticbeanstalk create-app-version \
             --application-name ${{ env.EB_APP_NAME }} \
             --version-label ${{ github.sha }} \
-            --source-bundle S3Bucket=${{ secrets.EB_BUCKET }},S3Key=s3p-callback-server-${{ github.sha }}.zip \
-            --region ${{ env.AWS_REGION }} || true
+            --source-bundle S3Bucket=${{ env.S3_BUCKET }},S3Key=s3p-callback-server-${{ github.sha }}.zip \
+            --region ${{ env.AWS_REGION }}
+          echo "✓ Application version created: ${{ github.sha }}"
 
       - name: Update EB environment
         run: |
