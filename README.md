@@ -1,15 +1,6 @@
-# S3P Payment Integration - Java Client
+# S3P Payment Integration
 
-Complete implementation of S3P payment processing with transaction callback support.
-
-## 🎯 Features
-
-✓ S3P API client for payment collection  
-✓ Static callback server for transaction status notifications  
-✓ 2-minute callback timeout with fallback to /verifytx  
-✓ AWS Elastic Beanstalk deployment with GitHub Actions  
-✓ Production-ready with database persistence  
-✓ Health checks and monitoring  
+Project repository for S3P payment integration code.
 
 ## 📂 Folder Structure
 
@@ -109,6 +100,29 @@ javac -cp ".:lib/smobilpay-s3p-java-client-1.0.0.jar" -d out src/CallbackClientE
 # Run
 java -cp ".:lib/*:out" CallbackClientExample
 ```
+
+#### Optional: Manual callback verification
+If the provider callback does not arrive during the 2-minute wait, you can verify the end-to-end parser path manually by POSTing a callback payload to the deployed callback server:
+
+```bash
+curl -X POST "$CALLBACK_HOST/api/v1/payment-callback" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "trid": "tx-123456",
+    "status": "SUCCESS",
+    "payment_status": "COMPLETE",
+    "amount": 5000,
+    "currency": "XAF"
+  }'
+```
+
+Then request the callback back:
+
+```bash
+curl "$CALLBACK_HOST/api/v1/callback/tx-123456"
+```
+
+This confirms the callback server stores the payload and the client parser can read the JSON response correctly.
 
 ### Option 2: Local Development
 

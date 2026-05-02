@@ -99,7 +99,7 @@ public class CallbackClientExample {
             org.maviance.s3pjavaclient.api.ConfirmApi confirmApi = 
                 new org.maviance.s3pjavaclient.api.ConfirmApi(apiClient);
             CollectionResponse payment = confirmApi.collectstdPost(X_API_VERSION, collection);
-            System.out.println("  Payment initiated. Collection Reference: " + payment.getCollectionReference() + "\n");
+            System.out.println("  Payment initiated. Receipt Number: " + payment.getReceiptNumber() + "\n");
 
             // Step 7: Wait for callback with timeout
             System.out.println("Step 5: Waiting for Callback Notification");
@@ -236,28 +236,22 @@ public class CallbackClientExample {
         TransactionStatus status = new TransactionStatus();
 
         // Simple JSON parsing (in production, use Jackson or Gson)
-        if (json.contains("\"trid\":")) {
-            int start = json.indexOf("\"trid\":\"") + 8;
-            int end = json.indexOf("\"", start);
-            status.setTrid(json.substring(start, end));
-        }
-
-        if (json.contains("\"status\":\"SUCCESS\"")) {
-            status.setStatus("SUCCESS");
-            status.setPending(false);
-        } else if (json.contains("\"status\":\"PENDING\"")) {
-            status.setStatus("PENDING");
-            status.setPending(true);
-        } else if (json.contains("\"status\":\"FAILED\"")) {
-            status.setStatus("FAILED");
-            status.setPending(false);
-        }
-
-        if (json.contains("\"message\":")) {
-            int start = json.indexOf("\"message\":\"") + 11;
-            int end = json.indexOf("\"", start);
-            if (end > start) {
-                status.setMessage(json.substring(start, end));
+        java.util.regex.Pattern stringField = java.util.regex.Pattern.compile("\\\"(trid|status|message)\\\"\\s*:\\s*\\\"([^\\\"]*)\\\"");
+        java.util.regex.Matcher matcher = stringField.matcher(json);
+        while (matcher.find()) {
+            String field = matcher.group(1);
+            String value = matcher.group(2);
+            switch (field) {
+                case "trid":
+                    status.setTrid(value);
+                    break;
+                case "status":
+                    status.setStatus(value);
+                    status.setPending("PENDING".equalsIgnoreCase(value));
+                    break;
+                case "message":
+                    status.setMessage(value);
+                    break;
             }
         }
 
@@ -276,8 +270,13 @@ public class CallbackClientExample {
             PaymentStatus paymentStatus = statusList.get(0);
             TransactionStatus status = new TransactionStatus();
             status.setTrid(trid);
-            status.setStatus(paymentStatus.getStatus());
-            status.setMessage(paymentStatus.getReason());
+            // Convert PaymentStatus.StatusEnum to String
+            PaymentStatus.StatusEnum statusEnum = paymentStatus.getStatus();
+            String statusStr = statusEnum != null ? statusEnum.toString() : "UNKNOWN";
+            status.setStatus(statusStr);
+            // Use available fields as message
+            String message = "PTN: " + paymentStatus.getPtn() + ", Tag: " + paymentStatus.getTag();
+            status.setMessage(message);
             status.setPending(false);
             return status;
         }

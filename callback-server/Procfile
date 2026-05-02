@@ -1,0 +1,1 @@
+web: java -jar s3p-callback-server-1.0.0.jar
